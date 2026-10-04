@@ -17,15 +17,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v4  # 修复：从 v3 升级到 v4
-        with:
-          packages: |
-            build-tools;34.0.0
-            platforms;android-34
+      # 删除出错的 setup-android 插件，直接用系统预装的 SDK 环境
 
       - name: Grant execute permission for gradlew
-        run: chmod +x geniex_chat_android/gradlew
+        working-directory: ./geniex_chat_android
+        run: |
+          if [ ! -f gradlew ]; then gradle wrapper; fi
+          chmod +x gradlew
 
       - name: Build Debug APK
         working-directory: ./geniex_chat_android
