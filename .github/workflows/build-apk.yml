@@ -17,7 +17,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 安装 AGP 8.13.0 所要求的 Gradle 8.13
       - name: Setup Gradle 8.13
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -26,18 +25,21 @@ jobs:
       - name: Grant execute permission for gradlew
         working-directory: ./geniex_chat_android
         run: |
-          if [ ! -f gradlew ]; then
-            echo "未找到 gradlew，使用 Gradle 8.13 生成..."
-            gradle wrapper --gradle-version 8.13
-          fi
+          if [ ! -f gradlew ]; then gradle wrapper --gradle-version 8.13; fi
           chmod +x gradlew
 
       - name: Build Debug APK
         working-directory: ./geniex_chat_android
         run: ./gradlew assembleDebug --no-daemon
 
+      # 新增：专门用来侦察 APK 文件到底生成在哪里
+      - name: Check APK Location
+        working-directory: ./geniex_chat_android
+        run: find . -name "*.apk" -type f
+
+      # 上传路径使用通配符，一旦找到就自动上传
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: geniex-debug-apk
-          path: geniex_chat_android/app/build/outputs/apk/debug/*.apk
+          path: geniex_chat_android/**/*.apk
